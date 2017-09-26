@@ -1,17 +1,12 @@
 package iad.rest.todo;
 
-import javax.servlet.annotation.WebInitParam;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.xml.bind.JAXBElement;
-import java.awt.*;
 import java.net.URI;
 import java.util.*;
 import java.util.List;
 
-//@WebServlet(urlPatterns = "/rest/*")
 @Path("/todos")
 public class TodoResource {
 
@@ -21,11 +16,11 @@ public class TodoResource {
     Request request;
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_XML)
     public List<Todo> getTodo(){
         List<Todo> todos = new LinkedList<Todo>();
         Todo todo = new Todo("1", "Faire courses", new GregorianCalendar().toString(), Collections.singletonList("Important"));
-        todos.add(todo);
+        todos.addAll(Todo.valuesStore());
         return todos;
     }
 
@@ -48,5 +43,19 @@ public class TodoResource {
         return response;
     }
 
-    
+    @Path("/{id}")
+    @DELETE
+    public Response deleteTodo(@PathParam("id") String id){
+        Response response;
+
+        if (Todo.containStore(id)) {
+            Todo.removeStore(id);
+            System.out.println(uriInfo.getAbsolutePath().toString() + "::" + request.toString());
+            response = Response.noContent().build();
+        } else {
+            response = Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return response;
+    }
+
 }
